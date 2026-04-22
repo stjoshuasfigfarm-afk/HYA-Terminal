@@ -1,0 +1,35 @@
+// lib/api/newsMonitor.ts
+const keywords = ["shortage", "strike", "delay", "bottleneck", "port", "tariff"];
+
+export async function checkSlowdowns(ticker) {
+  const news = await fetchNews(ticker); // Call your News API
+  const slowdowns = news.filter(article => 
+    keywords.some(word => article.headline.toLowerCase().includes(word))
+  );
+
+  return {
+    ticker: ticker,
+    status: slowdowns.length > 0 ? "⚠️ WARNING: Possible Slowdown" : "✅ CLEAR",
+    alerts: slowdowns.map(a => a.headline)
+  };
+}
+// lib/utils/mapHelpers.ts
+export function generateGraphData(ticker, allData) {
+    const company = allData[ticker];
+    const nodes = [{ id: ticker, label: company.name }];
+    const edges = [];
+  
+    // Add Suppliers
+    company.suppliers.forEach(s => {
+      nodes.push({ id: s.name, label: s.name });
+      edges.push({ source: s.name, target: ticker, label: s.type });
+    });
+  
+    // Add Customers
+    company.customers.forEach(c => {
+      nodes.push({ id: c.name, label: c.name });
+      edges.push({ source: ticker, target: c.name, label: c.type });
+    });
+  
+    return { nodes, edges };
+  }

@@ -1,0 +1,96 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 174 62% 47%; /* Teal #26A69A */
+    --primary-foreground: 222 47% 11%;
+    --secondary: 88 100% 66%; /* Lime #B2FF59 */
+    --secondary-foreground: 222 47% 11%;
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 174 62% 47%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 174 62% 47%;
+    --radius: 0.75rem;
+    --chart-1: 174 62% 47%;
+    --chart-2: 88 100% 66%;
+    --chart-3: 199 89% 48%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-mono antialiased;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(38, 166, 154, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(178, 255, 89, 0.1) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes dash { to { stroke-dashoffset: -20; } }
+.animate-data-flow { stroke-dasharray: 4, 6; animation: dash 1s linear infinite; }
+
+.custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 60s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.33%); }
+}
+
+.glass-panel {
+  @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl;
+}
+
+.silo-active {
+  box-shadow: 0 0 15px rgba(38, 166, 154, 0.3);
+  @apply border-primary/50;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+@keyframes flow-horizontal {
+  0% { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+.animate-flow-line {
+  stroke-dasharray: 10;
+  animation: flow-horizontal 2s linear infinite;
+}

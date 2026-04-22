@@ -1,0 +1,16 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hya-logo",
+      "description": "High Yield Analysts YouTube channel logo",
+      "imageUrl": "https://yt3.googleusercontent.com/dnHEV7o18pTSpA2JWs8bYUzhw7vErkkxdc_RvoghMRqGTWOX9JbhG0C1ge7Fg36lAe8tSl3F9A=s160-c-k-c0x00ffffff-no-rj",
+      "imageHint": "chart logo"
+    },
+    {
+      "id": "terminal-logo",
+      "description": "Terminal Logo",
+      "imageUrl": "https://picsum.photos/seed/chart-hall/40/40",
+      "imageHint": "chart hall"
+    }
+  ]
+}
