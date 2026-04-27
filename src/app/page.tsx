@@ -1,8 +1,13 @@
 'use client';
+
 import React, { useState, useEffect, useCallback, useTransition, lazy, useRef, Suspense } from "react";
 import { initialTickerData } from "@/lib/mock-data";
 import type { TickerData, LogEntry } from "@/lib/types";
-import { RefreshCw, LayoutDashboard, BrainCircuit, Globe, ShieldAlert, Settings as SettingsIcon, Terminal as TerminalIcon, Search, Activity, TrendingUp, BarChart3, Database } from "lucide-react";
+import { 
+  RefreshCw, LayoutDashboard, BrainCircuit, Globe, ShieldAlert, 
+  Settings as SettingsIcon, Terminal as TerminalIcon, Search, 
+  Activity, TrendingUp, BarChart3, Database 
+} from "lucide-react";
 import FinancialMetrics from "@/components/yield-terminal/financial-metrics";
 import HeaderEventLog from "@/components/yield-terminal/header-event-log";
 import SearchInput from "@/components/yield-terminal/search-input";
@@ -48,6 +53,22 @@ export default function Home() {
   const addLog = useCallback((type: LogEntry["type"], message: string) => {
     setLogs((prev) => [...prev, { timestamp: new Date(), type, message }].slice(-100));
   }, []);
+
+  // --- INSTITUTIONAL HOTKEY BINDING ---
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const keyMap: Record<string, ViewState> = {
+        'F1': 'DASHBOARD', 'F2': 'TOPOLOGY', 'F3': 'MACRO', 'F4': 'REGISTRY', 'F5': 'SETTINGS'
+      };
+      if (keyMap[e.key]) {
+        e.preventDefault();
+        setCurrentView(keyMap[e.key]);
+        addLog("SYSTEM", `VIEW_MODE_TRANSITION: ${keyMap[e.key]}`);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [addLog]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -131,18 +152,35 @@ export default function Home() {
                 />
             </div>
 
-            {/* MAIN TOPOLOGY HERO FOCUS */}
-            <div className="w-full min-h-[800px] glass-panel overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-2xl shrink-0">
-                <div className="p-3 border-b border-white/10 bg-white/[0.02] flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase text-primary tracking-widest flex items-center gap-2">
-                        <BrainCircuit className="w-4 h-4" /> Live Supply Chain Topology
-                    </span>
-                    <div className="flex items-center gap-4">
-                        <span className="text-[8px] text-muted-foreground uppercase font-black tracking-tighter">Primary Institutional Feature</span>
+            {/* MAIN TOPOLOGY & WORLD MAP GRID */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 shrink-0">
+                <div className="xl:col-span-2 min-h-[600px] glass-panel overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-2xl relative">
+                    <div className="p-3 border-b border-white/10 bg-white/[0.02] flex items-center justify-between backdrop-blur-md sticky top-0 z-10">
+                        <span className="text-[10px] font-black uppercase text-primary tracking-widest flex items-center gap-2">
+                            <BrainCircuit className="w-4 h-4" /> Live Supply Chain Topology
+                        </span>
+                        <div className="flex items-center gap-4">
+                            <span className="text-[8px] text-muted-foreground uppercase font-black tracking-tighter">Primary Node: {activeTicker}</span>
+                        </div>
+                    </div>
+                    <div className="h-[600px]">
+                        <LiveSupplyChainTerminal activeTicker={activeTicker} tickerData={tickerData} onTickerSelect={handleTickerResolve} livePrices={{}} />
                     </div>
                 </div>
-                <div className="h-[800px]">
-                    <LiveSupplyChainTerminal activeTicker={activeTicker} tickerData={tickerData} onTickerSelect={handleTickerResolve} livePrices={{}} />
+
+                {/* WORLD MARKET FLOW */}
+                <div className="min-h-[600px] glass-panel rounded-xl border border-white/10 bg-black/40 shadow-2xl flex flex-col">
+                    <div className="p-3 border-b border-white/10 flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase text-[#ffaa00] tracking-widest flex items-center gap-2">
+                            <Globe className="w-4 h-4" /> Global Market Flow
+                        </span>
+                    </div>
+                    <div className="flex-1 w-full grayscale hover:grayscale-0 transition-all duration-700">
+                        <iframe 
+                            src="https://www.tradingview-widget.com/embed-widget/market-quotes/?locale=en#%7B%22symbolsGroups%22%3A%5B%7B%22name%22%3A%22Major%20Indices%22%2C%22symbols%22%3A%5B%7B%22name%22%3A%22AMEX%3ASPY%22%7D%2C%7B%22name%22%3A%22NASDAQ%3AQQQ%22%7D%2C%7B%22name%22%3A%22INDEX%3ADXY%22%7D%2C%7B%22name%22%3A%22INDEX%3ANI225%22%7D%2C%7B%22name%22%3A%22INDEX%3ADAX%22%7D%5D%7D%5D%2C%22colorTheme%22%3A%22dark%22%2C%22isTransparent%22%3Atrue%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%7D"
+                            className="w-full h-full border-none rounded-b-xl"
+                        ></iframe>
+                    </div>
                 </div>
             </div>
 
