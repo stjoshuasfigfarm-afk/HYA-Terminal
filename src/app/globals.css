@@ -5,8 +5,12 @@ cat > ~/HYA-Terminal/src/app/globals.css << 'EOF'
 
 @layer base {
   :root {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+              body { @apply bg-background text-foreground; }
+          .glass-panel { @apply bg-black/40
+backdrop-blur-xl border border-white/10; }
+        }
     --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
