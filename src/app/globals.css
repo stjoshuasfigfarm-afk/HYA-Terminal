@@ -1,144 +1,154 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+'use client';
+import { useEffect, useState } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, onSnapshot } from 'firebase/firestore';
 
-@layer base {
-  :root {
-    /* Institutional Dark Palette */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 174 62% 47%; /* Teal-Green Intelligence */
-    --primary-foreground: 222 47% 11%;
-    --secondary: 88 100% 66%; /* Lime-Green Success */
-    --secondary-foreground: 222 47% 11%;
-    --muted: 217 32% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 174 62% 47%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
-    --ring: 174 62% 47%;
-    --radius: 0.75rem;
+// Firebase Config (Studio-700)
+const firebaseConfig = {
+    apiKey: "AIzaSyBuUOSPJOZyhv_lce6tHlU6ke5vcbGR12w",
+    authDomain: "studio-7004868057-a1479.firebaseapp.com",
+    projectId: "studio-7004868057-a1479",
+    storageBucket: "studio-7004868057-a1479.firebasestorage.app",
+    messagingSenderId: "582416227020",
+    appId: "1:582416227020:web:21d3df727835ac76ea0069"
+};
 
-    /* Charting & Data Visualization Colors */
-    --chart-1: 174 62% 47%;
-    --chart-2: 88 100% 66%;
-    --chart-3: 199 89% 48%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  * { @apply border-border; }
+export default function Terminal() {
+    const [spyPrice, setSpyPrice] = useState({ price: 512.45, delta: "+0.00%", color: "#fff" });
+    const [zTime, setZTime] = useState("");
 
-  body {
-    @apply bg-background text-foreground font-mono antialiased;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(38, 166, 154, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(178, 255, 89, 0.1) 0px, transparent 50%);
-    background-attachment: fixed;
-  }
+    // Simulated Sector Data
+    const sectors = [
+        { name: 'TECH', perf: '+1.4%', up: true },
+        { name: 'FIN', perf: '-0.2%', up: false },
+        { name: 'ENGY', perf: '+0.8%', up: true },
+        { name: 'HLTH', perf: '-1.1%', up: false },
+        { name: 'UTIL', perf: '+0.1%', up: true },
+        { name: 'CONS', perf: '-0.5%', up: false },
+    ];
+
+    // High Yield / Dividend Data
+    const yields = [
+        { symbol: 'JEPI', price: '56.82', yield: '7.4%', width: '74%' },
+        { symbol: 'GPIQ', price: '48.15', yield: '9.2%', width: '92%' },
+        { symbol: 'SCHD', price: '78.40', yield: '3.4%', width: '34%' }
+    ];
+
+    useEffect(() => {
+        // Live Firebase Listener for SPY
+        const unsubscribe = onSnapshot(collection(db, 'market-data'), (snapshot) => {
+            const data = snapshot.docs.map(doc => doc.data());
+            const spy = data.find(d => d.symbol === "SPY");
+            if (spy) {
+                const newPrice = parseFloat(spy.price);
+                setSpyPrice(prev => ({
+                    price: newPrice,
+                    delta: spy.delta,
+                    color: newPrice > prev.price ? '#00c076' : newPrice < prev.price ? '#cf304a' : '#fff'
+                }));
+                setTimeout(() => setSpyPrice(curr => ({ ...curr, color: '#fff' })), 500);
+            }
+        });
+
+        // UTC Clock
+        const timer = setInterval(() => {
+            setZTime(new Date().toISOString().replace('T', ' ').substring(0, 19) + " Z");
+        }, 1000);
+
+        return () => { unsubscribe(); clearInterval(timer); };
+    }, []);
+
+    return (
+        <main className="min-h-screen p-4 pb-12">
+            <header className="flex justify-between items-center mb-6 border-b border-white/10 pb-2">
+                <h1 className="text-primary font-black text-xs tracking-widest uppercase">
+                    High Yield Analysts // Quantitative Silo
+                </h1>
+                <div className="text-[10px] text-[#00c076] animate-pulse">● FEED_ACTIVE</div>
+            </header>
+
+            <div className="analysis-layout">
+                {/* PANEL 1: MACRO EQUITY (Spans 2 columns based on your CSS) */}
+                <section className="spy-panel silo-active">
+                    <div className="panel-title">Asset_Class: Equity / Ticker: SPY / Exchange: ARCA</div>
+                    <div className="flex justify-between items-end">
+                        <div>
+                            <div className="spy-price font-mono tracking-tighter" style={{ color: spyPrice.color }}>
+                                ${spyPrice.price.toFixed(2)}
+                            </div>
+                            <div className={`spy-delta font-bold ${spyPrice.delta.includes('-') ? 'text-[#cf304a]' : 'text-[#00c076]'}`}>
+                                {spyPrice.delta} Today
+                            </div>
+                        </div>
+                        <div className="text-right text-[10px] text-muted-foreground uppercase leading-tight">
+                            <div>Currency: USD</div>
+                            <div>Volume: 42.1M</div>
+                            <div className="text-primary">Status: SYNCED</div>
+                        </div>
+                    </div>
+                    {/* Data Flow Animation */}
+                    <div className="mt-4 h-[2px] w-full bg-white/5 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-primary/30 animate-data-flow"></div>
+                    </div>
+                </section>
+
+                {/* PANEL 2: HIGH YIELD METRICS */}
+                <section className="glass-panel p-4 rounded-lg flex flex-col justify-between">
+                    <div className="panel-title">Yield_Harvest // Dividend Assets</div>
+                    <div className="flex flex-col gap-3 mt-2">
+                        {yields.map(asset => (
+                            <div key={asset.symbol}>
+                                <div className="flex justify-between text-[10px] mb-1">
+                                    <span className="font-bold text-white">{asset.symbol}</span>
+                                    <span className="text-muted-foreground">${asset.price} | {asset.yield}</span>
+                                </div>
+                                <div className="earn-row">
+                                    <div className="earn-bar" style={{ width: asset.width }}></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* PANEL 3: SECTOR ROTATION */}
+                <section className="glass-panel p-4 rounded-lg">
+                    <div className="panel-title">Sector_Rotation // Intraday Flow</div>
+                    <div className="grid grid-cols-3 gap-2 mt-4">
+                        {sectors.map(s => (
+                            <div key={s.name} className="sector-tile flex flex-col justify-center items-center h-16">
+                                <span className="font-bold">{s.name}</span>
+                                <span className={s.up ? "text-[#00c076]" : "text-[#cf304a]"}>
+                                    {s.perf}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* PANEL 4: TREASURY MACRO (Spans 2 columns if added dynamically, or fits grid) */}
+                <section className="glass-panel p-4 rounded-lg col-span-1 md:col-span-2">
+                    <div className="panel-title">US_Treasury // Yield Curve Specs</div>
+                    <div className="flex justify-between items-center text-[11px] mt-4 p-2 bg-black/50 border border-white/5 rounded">
+                        <div className="text-center"><div className="text-muted-foreground mb-1">1M</div><div className="text-white">5.38%</div></div>
+                        <div className="text-center"><div className="text-muted-foreground mb-1">6M</div><div className="text-white">5.32%</div></div>
+                        <div className="text-center"><div className="text-muted-foreground mb-1">2Y</div><div className="text-[#cf304a]">4.60%</div></div>
+                        <div className="text-center"><div className="text-muted-foreground mb-1">10Y</div><div className="text-[#00c076]">4.25%</div></div>
+                        <div className="text-center"><div className="text-muted-foreground mb-1">30Y</div><div className="text-white">4.40%</div></div>
+                    </div>
+                </section>
+            </div>
+
+            <footer className="fixed bottom-0 left-0 w-full bg-black/90 border-t border-white/10 p-2 flex justify-between px-6 text-[9px] text-muted-foreground uppercase backdrop-blur-md z-50">
+                <div className="flex gap-6">
+                    <span>LOC: EASTPOINTE_MI</span>
+                    <span>NET: SECURE</span>
+                    <span>ENC: AES-256</span>
+                </div>
+                <span className="text-primary font-bold">{zTime}</span>
+            </footer>
+        </main>
+    );
 }
-
-/* --- UTILITY CLASSES & GLASS-MORPHISM --- */
-.glass-panel {
-  @apply bg-black/40 backdrop-blur-xl shadow-2xl;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.silo-active {
-  box-shadow: 0 0 15px rgba(38, 166, 154, 0.3);
-  border-color: hsl(var(--primary) / 0.5);
-}
-
-.custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary)); }
-
-/* --- TERMINAL LAYOUT ENGINE --- */
-.analysis-layout {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto auto;
-    gap: 1rem;
-}
-
-.spy-panel {
-    grid-column: span 2;
-    position: relative;
-    @apply glass-panel p-6 rounded-lg;
-}
-
-.panel-title {
-    font-size: 10px;
-    color: #ffaa00; /* Gold Alert Color */
-    margin-bottom: 0.5rem;
-    border-bottom: 1px solid hsl(var(--primary));
-    padding-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.spy-price {
-    font-size: 28px;
-    color: #fff;
-    font-weight: bold;
-}
-
-.spy-delta {
-    font-size: 14px;
-    margin-bottom: 1rem;
-}
-
-/* Earnings & Yield Visualization */
-.earn-row {
-    display: flex;
-    align-items: center;
-    font-size: 10px;
-    margin-bottom: 6px;
-}
-
-.earn-bar {
-    height: 6px;
-    background: hsl(var(--primary));
-    margin-left: 6px;
-    border-radius: 2px;
-}
-
-.sector-tile {
-    padding: 8px;
-    text-align: center;
-    font-size: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    @apply transition-all duration-200 hover:bg-white/5;
-}
-
-/* --- ANIMATION ENGINE --- */
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
-}
-
-@keyframes dash { to { stroke-dashoffset: -20; } }
-.animate-data-flow { stroke-dasharray: 4, 6; animation: dash 1s linear infinite; }
-
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-33.33%); }
-}
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 60s linear infinite;
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow { animation: spin-slow 8s linear infinite; }
