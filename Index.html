@@ -1,76 +1,89 @@
- <!DOCTYPE html>
- <html lang="en">
- <head>
-     <meta charset="UTF-8">
-     <title>HYA Terminal | Institutional Silo</title>
-     <script
- src="https://www.gstatic.com/firebasejs/10.8.0/firebase-ap
- p-compat.js"></script>
-     <script
- src="https://www.gstatic.com/firebasejs/10.8.0/firebase-fi
- restore-compat.js"></script>
-     <style>
-         :root { --bg: #000; --panel: #0a0a0a; --primary:
- #26a69a; --accent: #ffa100; --text: #f8fafc; }
-         body { font-family: 'Consolas', monospace;
- background: var(--bg); color: var(--text); margin: 0;
- padding: 2rem; }
-         .glass-panel { background: rgba(0,0,0,0.6);
- backdrop-filter: blur(20px); border: 1px solid
- rgba(255,255,255,0.1); border-radius: 8px; padding:
- 1.5rem; }
-         .grid { display: grid; grid-template-columns:
- repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;
- margin-top: 1rem; }
-         .card { border-left: 3px solid var(--primary);
- background: var(--panel); padding: 1rem; border: 1px solid
- #222; }
-         .symbol { color: var(--primary); font-size:
- 1.2rem; font-weight: 900; text-transform: uppercase; }
-         .val { font-size: 1.5rem; font-weight: 900; }
-         .header { display: flex; justify-content:
- space-between; border-bottom: 1px solid var(--primary);
- padding-bottom: 1rem; margin-bottom: 2rem; }
-         h1 { font-size: 1.5rem; letter-spacing: 2px; }
-     </style>
- </head>
- <body>
-     <header class="header">
-         <h1>HYA TERMINAL :: SILO_ACTIVE</h1>
-         <div id="clock">--:--:--</div>
-     </header>
-     <div class="grid" id="data-container"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HYA Terminal | Institutional Silo</title>
+    <!-- Firebase SDKs -->
+    <script
+src="https://www.gstatic.com/firebasejs/10.8.0/firebase-ap
+p-compat.js"></script>
+    <script
+src="https://www.gstatic.com/firebasejs/10.8.0/firebase-fi
+restore-compat.js"></script>
+    <style>
+        :root { --bg: #050505; --primary: #00ff41; }
+        body { font-family: 'Consolas', monospace;
+background: var(--bg); color: #fff; margin: 0; padding:
+1rem; }
+        .header { display: flex; justify-content:
+space-between; border-bottom: 2px solid var(--primary);
+padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        .ticker-wrapper { margin: 1rem 0; height: 60px; }
+        .grid { display: grid; grid-template-columns:
+repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;
+min-height: 200px; }
+        .card { border: 1px solid #333; padding: 1rem;
+border-radius: 4px; background: #111; }
+        .val { color: var(--primary); font-weight: bold; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>HYA TERMINAL :: SILO_ACTIVE</h1>
+        <div id="clock">--:--:--</div>
+    </header>
 
-     <script>
-         const firebaseConfig = { apiKey:
- "AIzaSyBuUOSPJOZyhv_lce6tHlU6ke5vcbGR12w", authDomain:
- "studio-7004868057-a1479.firebaseapp.com", projectId:
- "studio-7004868057-a1479", storageBucket:
- "studio-7004868057-a1479.firebasestorage.app",
- messagingSenderId: "582416227020", appId:
- "1:582416227020:web:21d3df727835ac76ea0069" };
-         firebase.initializeApp(firebaseConfig);
-         const db = firebase.firestore();
-         setInterval(() =>
- document.getElementById('clock').innerText = new
- Date().toLocaleTimeString(), 1000);
+    <div class="ticker-wrapper">
+        <div class="tradingview-widget-container">
+            <script type="text/javascript"
+src="https://s3.tradingview.com/external-embedding/embed-w
+idget-ticker-tape.js" async>
+            { "symbols": [{"proName": "FOREXCOM:SPXUSD"},
+{"proName": "FOREXCOM:NSXUSD"}, {"proName":
+"BITSTAMP:BTCUSD"}], "colorTheme": "dark",
+"isTransparent": true, "displayMode": "adaptive" }
+            </script>
+        </div>
+    </div>
 
-         const container =
- document.getElementById('data-container');
-         db.collection('market-data').onSnapshot((snap) =>
- {
-             container.innerHTML = '';
-             snap.forEach(doc => {
-                 const d = doc.data();
-                 container.innerHTML += `
-                     <div class="card glass-panel">
-                         <div
- class="symbol">${d.symbol}</div>
-                         <div class="val">$${d.price}</div>
-                         <div>${d.delta}</div>
-                     </div>`;
-             });
-         });
-     </script>
- </body>
- </html>
+    <div id="data-container" class="grid">
+        <p>Initializing Data Silo...</p>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey:
+"AIzaSyBuUOSPJOZyhv_lce6tHlU6ke5vcbGR12w", authDomain:
+"studio-7004868057-a1479.firebaseapp.com", projectId:
+"studio-7004868057-a1479", storageBucket:
+"studio-7004868057-a1479.firebasestorage.app",
+messagingSenderId: "582416227020", appId:
+"1:582416227020:web:21d3df727835ac76ea0069" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        setInterval(() =>
+document.getElementById('clock').innerText = new
+Date().toLocaleTimeString(), 1000);
+
+        db.collection('market-data').onSnapshot((snap) =>
+{
+            const container =
+document.getElementById('data-container');
+            container.innerHTML = '';
+            if (snap.empty) { container.innerHTML = '<p>No
+data in Silo. Add docs to market-data collection.</p>'; }
+            snap.forEach(doc => {
+                const d = doc.data();
+                container.innerHTML += `
+                    <div class="card">
+                        <h3>${d.symbol || 'SYMBOL'}</h3>
+                        <p>Price: <span
+class="val">$${d.price || '0.00'}</span></p>
+                        <p>Perf: <span
+class="val">${d.delta || '0%'}</span></p>
+                    </div>`;
+            });
+        });
+    </script>
+</body>
+</html>
