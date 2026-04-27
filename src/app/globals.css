@@ -1,23 +1,19 @@
-cat > ~/HYA-Terminal/src/app/globals.css << 'EOF'
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    /* Institutional Dark Palette */
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
-              body { @apply bg-background text-foreground; }
-          .glass-panel { @apply bg-black/40
-backdrop-blur-xl border border-white/10; }
-        }
     --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    --primary: 174 62% 47%;
+    --primary: 174 62% 47%; /* Teal-Green Intelligence */
     --primary-foreground: 222 47% 11%;
-    --secondary: 88 100% 66%;
+    --secondary: 88 100% 66%; /* Lime-Green Success */
     --secondary-foreground: 222 47% 11%;
     --muted: 217 32% 17%;
     --muted-foreground: 215 20% 65%;
@@ -29,50 +25,27 @@ backdrop-blur-xl border border-white/10; }
     --input: 217 32% 17%;
     --ring: 174 62% 47%;
     --radius: 0.75rem;
+
+    /* Charting & Data Visualization Colors */
     --chart-1: 174 62% 47%;
     --chart-2: 88 100% 66%;
     --chart-3: 199 89% 48%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
+
   body {
     @apply bg-background text-foreground font-mono antialiased;
-    background-image:
+    background-image: 
       radial-gradient(at 0% 0%, rgba(38, 166, 154, 0.15) 0px, transparent 50%),
       radial-gradient(at 100% 100%, rgba(178, 255, 89, 0.1) 0px, transparent 50%);
     background-attachment: fixed;
   }
 }
 
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
-}
-
-@keyframes dash { to { stroke-dashoffset: -20; } }
-.animate-data-flow { stroke-dasharray: 4, 6; animation: dash 1s linear infinite; }
-
-.custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 60s linear infinite;
-}
-
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-33.33%); }
-}
-
+/* --- UTILITY CLASSES & GLASS-MORPHISM --- */
 .glass-panel {
   @apply bg-black/40 backdrop-blur-xl shadow-2xl;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -83,18 +56,89 @@ backdrop-blur-xl border border-white/10; }
   border-color: hsl(var(--primary) / 0.5);
 }
 
+.custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary)); }
+
+/* --- TERMINAL LAYOUT ENGINE --- */
+.analysis-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 1rem;
+}
+
+.spy-panel {
+    grid-column: span 2;
+    position: relative;
+    @apply glass-panel p-6 rounded-lg;
+}
+
+.panel-title {
+    font-size: 10px;
+    color: #ffaa00; /* Gold Alert Color */
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid hsl(var(--primary));
+    padding-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.spy-price {
+    font-size: 28px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.spy-delta {
+    font-size: 14px;
+    margin-bottom: 1rem;
+}
+
+/* Earnings & Yield Visualization */
+.earn-row {
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    margin-bottom: 6px;
+}
+
+.earn-bar {
+    height: 6px;
+    background: hsl(var(--primary));
+    margin-left: 6px;
+    border-radius: 2px;
+}
+
+.sector-tile {
+    padding: 8px;
+    text-align: center;
+    font-size: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    @apply transition-all duration-200 hover:bg-white/5;
+}
+
+/* --- ANIMATION ENGINE --- */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes dash { to { stroke-dashoffset: -20; } }
+.animate-data-flow { stroke-dasharray: 4, 6; animation: dash 1s linear infinite; }
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.33%); }
+}
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 60s linear infinite;
+}
+
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 .animate-spin-slow { animation: spin-slow 8s linear infinite; }
-
-@keyframes flow-horizontal {
-  0% { stroke-dashoffset: 100; }
-  100% { stroke-dashoffset: 0; }
-}
-.animate-flow-line {
-  stroke-dasharray: 10;
-  animation: flow-horizontal 2s linear infinite;
-}
-EOF
