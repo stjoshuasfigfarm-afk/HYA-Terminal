@@ -2,65 +2,208 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HYA Terminal | Institutional Silo</title>
+    
+    <!-- Firebase SDKs -->
+    <script defer src="/__/firebase/12.10.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/12.10.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/12.10.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=false"></script>
+    
     <style>
-        :root { --primary: #00ff41; --bg: #050505;
---panel: #111; }
-        body { font-family: 'Courier New', Courier,
-monospace; background: var(--bg); color: var(--primary);
-margin: 0; padding: 2rem; }
-        h1 { color: #fff; border-bottom: 2px solid
-var(--primary); padding-bottom: 0.5rem; font-size: 1.5rem;
-text-transform: uppercase; letter-spacing: 0.2rem; }
-        .grid { display: grid; grid-template-columns:
-repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;
-margin-top: 2rem; }
-        .card { border: 1px solid rgba(0, 255, 65, 0.2);
-padding: 1.5rem; border-radius: 8px; background: rgba(17,
-17, 17, 0.6); backdrop-filter: blur(10px); box-shadow: 0
-4px 15px rgba(0,0,0,0.5); }
-        h3 { color: #fff; margin-top: 0; text-transform:
-uppercase; font-size: 0.9rem; }
-        .val { font-weight: bold; color: #fff; }
-        .macro-box { border: 1px solid var(--primary);
-padding: 1.5rem; background: rgba(0, 255, 65, 0.05); }
+        :root {
+            --primary: #00ff41;
+            --bg: #050505;
+            --panel: #111;
+            --accent: #ffa100;
+            --dim: #008f11;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: var(--bg);
+            color: var(--primary);
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 1rem;
+        }
+        
+        h1 {
+            color: #fff;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2rem;
+        }
+        
+        .status-indicator {
+            font-size: 12px;
+            color: var(--dim);
+        }
+        
+        .status-indicator .online { color: var(--primary); }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .card {
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+            background: rgba(17, 17, 17, 0.6);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: border-color 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: rgba(0, 255, 65, 0.5);
+        }
+        
+        h3 {
+            color: #fff;
+            margin-top: 0;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--dim);
+            padding-bottom: 0.5rem;
+        }
+        
+        .val {
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .macro-box {
+            border: 1px solid var(--primary);
+            padding: 1.5rem;
+            background: rgba(0, 255, 65, 0.05);
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+        
         .status-up { color: #4ade80; }
+        .status-down { color: #ff4545; }
+        
+        .loading {
+            color: var(--dim);
+            font-size: 0.9rem;
+        }
+        
+        #load-status {
+            position: fixed;
+            bottom: 10px;
+            right: 15px;
+            font-size: 10px;
+            color: var(--dim);
+        }
+        
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            h1 { font-size: 1.2rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <h1>HYA Terminal: Institutional Silo</h1>
+    <header>
+        <h1>HYA Terminal: Institutional Silo</h1>
+        <div class="status-indicator">STATUS: <span id="sys-state" class="dim">INITIALIZING...</span></div>
+    </header>
     
     <div class="macro-box">
         <h3>Macro Corridor Status</h3>
-        <p>10Y-2Y Spread: <span class="val">-0.15%</span>
-| Status: <span class="val">Inverted</span></p>
+        <p>10Y-2Y Spread: <span class="val" id="spread-val">-0.15%</span> | Status: <span class="val" id="spread-status">Inverted</span></p>
     </div>
 
-    <div class="grid" id="data-container"></div>
+    <div class="grid" id="data-container">
+        <div class="loading">Loading market data...</div>
+    </div>
+
+    <div id="load-status">Initializing...</div>
 
     <script>
-        const tickers = [
-            { symbol: 'SMH', name: 'AI Infrastructure',
-price: '245.12', delta: '+4.2%' },
-            { symbol: 'XLK', name: 'Information Tech',
-price: '210.45', delta: '+3.1%' },
-            { symbol: 'XLF', name: 'Financial Services',
-price: '42.88', delta: '+2.5%' },
-            { symbol: 'SOXX', name: 'Semiconductors',
-price: '680.15', delta: '+3.8%' }
+        // Default tickers with real-time Firestore override
+        const defaultTickers = [
+            { symbol: 'SMH', name: 'AI Infrastructure', price: '245.12', delta: '+4.2%' },
+            { symbol: 'XLK', name: 'Information Tech', price: '210.45', delta: '+3.1%' },
+            { symbol: 'XLF', name: 'Financial Services', price: '42.88', delta: '+2.5%' },
+            { symbol: 'SOXX', name: 'Semiconductors', price: '680.15', delta: '+3.8%' }
         ];
-        const container =
-document.getElementById('data-container');
-        tickers.forEach(d => {
-            container.innerHTML += `
+
+        function renderTickerCard(ticker) {
+            const deltaClass = ticker.delta.includes('-') ? 'status-down' : 'status-up';
+            return `
                 <div class="card">
-                    <h3>${d.symbol} - ${d.name}</h3>
-                    <p>Price: <span
-class="val">$${d.price}</span></p>
-                    <p>Performance: <span
-class="status-up">${d.delta}</span></p>
+                    <h3>${ticker.symbol} - ${ticker.name}</h3>
+                    <p>Price: <span class="val">$${ticker.price}</span></p>
+                    <p>Performance: <span class="${deltaClass}">${ticker.delta}</span></p>
                 </div>
             `;
+        }
+
+        function renderTickers(tickers) {
+            const container = document.getElementById('data-container');
+            container.innerHTML = tickers.map(renderTickerCard).join('');
+        }
+
+        // Initial render with defaults
+        renderTickers(defaultTickers);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadEl = document.getElementById('load-status');
+            const sysState = document.getElementById('sys-state');
+
+            try {
+                let app = firebase.app();
+                let features = ['auth', 'firestore']
+                    .filter(feature => typeof app[feature] === 'function');
+                
+                loadEl.textContent = `SDK v12.10.0 | Active: ${features.join(', ')}`;
+                sysState.textContent = 'ONLINE';
+                sysState.style.color = 'var(--primary)';
+                
+                // Real-time Firestore listener for tickers
+                const db = firebase.firestore();
+                
+                db.collection('market-data')
+                    .collection('tickers')
+                    .orderBy('timestamp', 'desc')
+                    .limit(4)
+                    .onSnapshot((snapshot) => {
+                        if (!snapshot.empty) {
+                            const tickers = snapshot.docs.map(doc => ({
+                                symbol: doc.data().symbol,
+                                name: doc.data().name,
+                                price: doc.data().price,
+                                delta: doc.data().delta
+                            }));
+                            renderTickers(tickers);
+                        }
+                    }, (error) => {
+                        console.error("Firestore Error:", error);
+                        loadEl.textContent = 'Firestore connection error';
+                    });
+
+            } catch (e) {
+                console.error(e);
+                loadEl.textContent = 'Connection Error.';
+                sysState.textContent = 'OFFLINE';
+                sysState.style.color = '#ff4545';
+            }
         });
     </script>
 </body>
