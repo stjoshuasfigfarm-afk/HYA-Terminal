@@ -2,190 +2,88 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HYA | ANALYSIS TERMINAL</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    
+    <title>HYA Terminal | Institutional Silo</title>
+    <!-- Firebase SDKs -->
+    <script
+src="https://www.gstatic.com/firebasejs/10.8.0/firebase-ap
+p-compat.js"></script>
+    <script
+src="https://www.gstatic.com/firebasejs/10.8.0/firebase-fi
+restore-compat.js"></script>
     <style>
-        :root {
-            --bg-dark: #0a0b0d;
-            --panel-bg: #14161a;
-            --border-color: #2b2f36;
-            --text-main: #e1e3e6;
-            --text-dim: #848e9c;
-            --accent-blue: #2962ff;
-            --bull-green: #00c076;
-            --bear-red: #cf304a;
-        }
-
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-            background: var(--bg-dark); 
-            color: var(--text-main); 
-            margin: 0; 
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-        /* Header Bar */
-        header {
-            background: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 0.75rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        h1 { 
-            font-size: 0.9rem; 
-            font-weight: 800; 
-            letter-spacing: 1px; 
-            margin: 0;
-            color: var(--accent-blue);
-        }
-
-        .system-status { font-size: 0.7rem; color: var(--bull-green); }
-
-        /* Ticker Tape Overlay */
-        .ticker-container {
-            border-bottom: 1px solid var(--border-color);
-            background: #000;
-        }
-
-        /* Grid Layout */
-        .main-layout {
-            padding: 1.5rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
-        }
-
-        .card { 
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            padding: 1rem;
-            border-radius: 4px;
-            transition: border-color 0.2s;
-        }
-
-        .card:hover { border-color: var(--accent-blue); }
-
-        .symbol-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
-        }
-
-        .symbol { font-weight: 700; font-size: 1.1rem; }
-        .name { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
-
-        .price-row { font-size: 1.5rem; font-weight: 600; margin: 0.5rem 0; }
-
-        .delta {
-            font-size: 0.8rem;
-            padding: 2px 6px;
-            border-radius: 2px;
-            background: rgba(0, 192, 118, 0.1);
-            color: var(--bull-green);
-        }
-
-        .delta.negative {
-            background: rgba(207, 48, 74, 0.1);
-            color: var(--bear-red);
-        }
-
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: var(--panel-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 0.3rem 1rem;
-            font-size: 0.65rem;
-            color: var(--text-dim);
-            display: flex;
-            gap: 20px;
-        }
+        :root { --bg: #050505; --primary: #00ff41; }
+        body { font-family: 'Consolas', monospace;
+background: var(--bg); color: #fff; margin: 0; padding:
+1rem; }
+        .header { display: flex; justify-content:
+space-between; border-bottom: 2px solid var(--primary);
+padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        .ticker-wrapper { margin: 1rem 0; height: 60px; }
+        .grid { display: grid; grid-template-columns:
+repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;
+min-height: 200px; }
+        .card { border: 1px solid #333; padding: 1rem;
+border-radius: 4px; background: #111; }
+        .val { color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <header>
-        <h1>HYA ANALYSIS TERMINAL <span style="color:white">//</span> SILO v1.0</h1>
-        <div class="system-status">● LIVE_FEED_ACTIVE</div>
+    <header class="header">
+        <h1>HYA TERMINAL :: SILO_ACTIVE</h1>
+        <div id="clock">--:--:--</div>
     </header>
 
-    <div class="ticker-container">
+    <div class="ticker-wrapper">
         <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            {
-                "symbols": [
-                    { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500" },
-                    { "proName": "FOREXCOM:NSXUSD", "title": "NASDAQ" },
-                    { "proName": "BITSTAMP:BTCUSD", "title": "BTC/USD" },
-                    { "proName": "OANDA:XAUUSD", "title": "GOLD" }
-                ],
-                "showSymbolLogo": false,
-                "colorTheme": "dark",
-                "isTransparent": true,
-                "displayMode": "compact",
-                "locale": "en"
-            }
+            <script type="text/javascript"
+src="https://s3.tradingview.com/external-embedding/embed-w
+idget-ticker-tape.js" async>
+            { "symbols": [{"proName": "FOREXCOM:SPXUSD"},
+{"proName": "FOREXCOM:NSXUSD"}, {"proName":
+"BITSTAMP:BTCUSD"}], "colorTheme": "dark",
+"isTransparent": true, "displayMode": "adaptive" }
             </script>
         </div>
     </div>
 
-    <main class="main-layout" id="data-container"></main>
-
-    <footer>
-        <span>LOC: EASTPOINTE_MI</span>
-        <span>ENC: AES_256_ACTIVE</span>
-        <span id="timestamp"></span>
-    </footer>
+    <div id="data-container" class="grid">
+        <p>Initializing Data Silo...</p>
+    </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBuUOSPJOZyhv_lce6tHlU6ke5vcbGR12w",
-            authDomain: "studio-7004868057-a1479.firebaseapp.com",
-            projectId: "studio-7004868057-a1479",
-            storageBucket: "studio-7004868057-a1479.firebasestorage.app",
-            messagingSenderId: "582416227020",
-            appId: "1:582416227020:web:21d3df727835ac76ea0069"
-        };
+        const firebaseConfig = { apiKey:
+"AIzaSyBuUOSPJOZyhv_lce6tHlU6ke5vcbGR12w", authDomain:
+"studio-7004868057-a1479.firebaseapp.com", projectId:
+"studio-7004868057-a1479", storageBucket:
+"studio-7004868057-a1479.firebasestorage.app",
+messagingSenderId: "582416227020", appId:
+"1:582416227020:web:21d3df727835ac76ea0069" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         
-        const container = document.getElementById('data-container');
+        setInterval(() =>
+document.getElementById('clock').innerText = new
+Date().toLocaleTimeString(), 1000);
 
-        db.collection('market-data').onSnapshot((snapshot) => {
+        db.collection('market-data').onSnapshot((snap) =>
+{
+            const container =
+document.getElementById('data-container');
             container.innerHTML = '';
-            snapshot.forEach((doc) => {
+            if (snap.empty) { container.innerHTML = '<p>No
+data in Silo. Add docs to market-data collection.</p>'; }
+            snap.forEach(doc => {
                 const d = doc.data();
-                const isNegative = d.delta && d.delta.includes('-');
-                
                 container.innerHTML += `
                     <div class="card">
-                        <div class="symbol-row">
-                            <div>
-                                <div class="symbol">${d.symbol || 'N/A'}</div>
-                                <div class="name">${d.name || 'UNKNOWN ASSET'}</div>
-                            </div>
-                            <div class="delta ${isNegative ? 'negative' : ''}">${d.delta || '0.00%'}</div>
-                        </div>
-                        <div class="price-row">$${d.price || '0.00'}</div>
-                        <div style="font-size: 0.6rem; color: var(--text-dim)">VOL: ${d.volume || '--'}</div>
+                        <h3>${d.symbol || 'SYMBOL'}</h3>
+                        <p>Price: <span
+class="val">$${d.price || '0.00'}</span></p>
+                        <p>Perf: <span
+class="val">${d.delta || '0%'}</span></p>
                     </div>`;
             });
         });
-
-        // Simple Clock
-        setInterval(() => {
-            document.getElementById('timestamp').innerText = new Date().toISOString().replace('T', ' ').substring(0, 19) + " Z";
-        }, 1000);
     </script>
 </body>
 </html>
