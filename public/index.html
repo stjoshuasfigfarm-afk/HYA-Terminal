@@ -1,271 +1,76 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Analysts Terminal | High-Yield Feed</title>
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <title>HYA Terminal | Institutional Silo</title>
+     <script
+ src="https://www.gstatic.com/firebasejs/10.8.0/firebase-ap
+ p-compat.js"></script>
+     <script
+ src="https://www.gstatic.com/firebasejs/10.8.0/firebase-fi
+ restore-compat.js"></script>
+     <style>
+         :root { --bg: #000; --panel: #0a0a0a; --primary:
+ #26a69a; --accent: #ffa100; --text: #f8fafc; }
+         body { font-family: 'Consolas', monospace;
+ background: var(--bg); color: var(--text); margin: 0;
+ padding: 2rem; }
+         .glass-panel { background: rgba(0,0,0,0.6);
+ backdrop-filter: blur(20px); border: 1px solid
+ rgba(255,255,255,0.1); border-radius: 8px; padding:
+ 1.5rem; }
+         .grid { display: grid; grid-template-columns:
+ repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;
+ margin-top: 1rem; }
+         .card { border-left: 3px solid var(--primary);
+ background: var(--panel); padding: 1rem; border: 1px solid
+ #222; }
+         .symbol { color: var(--primary); font-size:
+ 1.2rem; font-weight: 900; text-transform: uppercase; }
+         .val { font-size: 1.5rem; font-weight: 900; }
+         .header { display: flex; justify-content:
+ space-between; border-bottom: 1px solid var(--primary);
+ padding-bottom: 1rem; margin-bottom: 2rem; }
+         h1 { font-size: 1.5rem; letter-spacing: 2px; }
+     </style>
+ </head>
+ <body>
+     <header class="header">
+         <h1>HYA TERMINAL :: SILO_ACTIVE</h1>
+         <div id="clock">--:--:--</div>
+     </header>
+     <div class="grid" id="data-container"></div>
 
-    <!-- Firebase SDKs -->
-    <script defer src="/__/firebase/12.10.0/firebase-app-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/init.js?useEmulator=false"></script>
+     <script>
+         const firebaseConfig = { apiKey:
+ "AIzaSyBuUOSPJOZyhv_lce6tHlU6ke5vcbGR12w", authDomain:
+ "studio-7004868057-a1479.firebaseapp.com", projectId:
+ "studio-7004868057-a1479", storageBucket:
+ "studio-7004868057-a1479.firebasestorage.app",
+ messagingSenderId: "582416227020", appId:
+ "1:582416227020:web:21d3df727835ac76ea0069" };
+         firebase.initializeApp(firebaseConfig);
+         const db = firebase.firestore();
+         setInterval(() =>
+ document.getElementById('clock').innerText = new
+ Date().toLocaleTimeString(), 1000);
 
-    <style>
-      :root {
-        --terminal-bg: #0d0d0d;
-        --terminal-text: #00ff41;
-        --terminal-dim: #008f11;
-        --accent: #ffa100;
-        --panel-bg: #1a1a1a;
-      }
-
-      body {
-        background: var(--terminal-bg);
-        color: var(--terminal-text);
-        font-family: 'Courier New', Courier, monospace;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        overflow: hidden;
-      }
-
-      header {
-        background: var(--panel-bg);
-        padding: 10px 20px;
-        border-bottom: 2px solid var(--terminal-dim);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      header h1 {
-        margin: 0;
-        font-size: 18px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-      }
-
-      .status-indicator {
-        font-size: 12px;
-        color: var(--terminal-dim);
-      }
-
-      .dashboard {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        grid-template-rows: 1fr 200px;
-        gap: 15px;
-        padding: 15px;
-        flex-grow: 1;
-      }
-
-      .panel {
-        background: var(--panel-bg);
-        border: 1px solid var(--terminal-dim);
-        border-radius: 4px;
-        padding: 15px;
-        overflow-y: auto;
-      }
-
-      .panel h2 {
-        margin: 0 0 10px 0;
-        font-size: 14px;
-        color: var(--accent);
-        text-transform: uppercase;
-        border-bottom: 1px solid var(--terminal-dim);
-        padding-bottom: 5px;
-      }
-
-      .data-feed {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      .data-item {
-        margin-bottom: 10px;
-        padding: 10px;
-        border-bottom: 1px solid #333;
-        font-size: 13px;
-      }
-
-      .data-item .timestamp { color: var(--terminal-dim); font-size: 11px; }
-      .data-item .tag { color: var(--accent); font-weight: bold; }
-
-      .terminal-log {
-        grid-column: span 2;
-        background: #000;
-        color: #fff;
-        font-family: monospace;
-        padding: 10px;
-        font-size: 12px;
-        overflow-y: auto;
-      }
-
-      .terminal-line::before {
-        content: "> ";
-        color: var(--terminal-text);
-      }
-
-      #load-status {
-        position: fixed;
-        bottom: 5px;
-        right: 10px;
-        font-size: 10px;
-        color: var(--terminal-dim);
-      }
-
-      @media (max-width: 800px) {
-        .dashboard {
-          grid-template-columns: 1fr;
-          grid-template-rows: auto;
-        }
-        .terminal-log { grid-column: span 1; }
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Analysts Terminal</h1>
-      <div class="status-indicator">SYSTEM STATUS: <span id="sys-state">INITIALIZING...</span></div>
-    </header>
-
-    <!-- TradingView Ticker Tape Widget -->
-    <div class="tradingview-widget-container" style="border-bottom: 1px solid var(--terminal-dim);">
-      <div class="tradingview-widget-container__widget"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-      {
-      "symbols": [
-        { "proName": "FOREXCOM:SPX500", "title": "S&P 500" },
-        { "proName": "FX_IDC:EURUSD", "title": "EUR/USD" },
-        { "proName": "BITSTAMP:BTCUSD", "title": "BTC/USD" },
-        { "proName": "BITSTAMP:ETHUSD", "title": "ETH/USD" },
-        { "proName": "COMEX:GC1!", "title": "Gold" },
-        { "proName": "NYMEX:CL1!", "title": "WTI Crude" }
-      ],
-      "showSymbolLogo": true,
-      "colorTheme": "dark",
-      "isTransparent": true,
-      "displayMode": "adaptive",
-      "locale": "en"
-    }
-      </script>
-    </div>
-
-    <main class="dashboard">
-      <!-- Main Data Feed -->
-      <section class="panel">
-        <h2>Live Intelligence Feed</h2>
-        <div id="intel-feed" class="data-feed">
-          <div class="data-item">
-            <div class="timestamp">2026-02-27 05:45:12</div>
-            <div><span class="tag">[DEAL]</span> Anthropic/Pentagon standoff reaches critical deadline. Federal ban expected.</div>
-          </div>
-          <div class="data-item">
-            <div class="timestamp">2026-02-27 05:30:00</div>
-            <div><span class="tag">[TECH]</span> Quantum-AI convergence driving massive middle-management displacement.</div>
-          </div>
-          <div class="data-item">
-            <div class="timestamp">2026-02-27 05:15:22</div>
-            <div><span class="tag">[MARKET]</span> xAI (Grok) secures Pentagon classified access, filling Anthropic gap.</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Sidebar: Market Briefs -->
-      <section class="panel">
-        <h2>Market Briefing</h2>
-        <div id="market-briefs" style="font-size: 13px; line-height: 1.6;">
-          <p><strong>CURRENT FOCUS:</strong> System Orchestration</p>
-          <p>The move from 'Managing People' to 'Orchestrating Systems' is now standard across all High-Yield firms.</p>
-          <p><strong>KEY RISK:</strong> Sovereign AI infrastructure compatibility.</p>
-        </div>
-      </section>
-
-      <!-- Bottom: Terminal Logs -->
-      <section class="panel terminal-log" id="terminal-output">
-        <div class="terminal-line">Connecting to studio-7004868057-a1479...</div>
-        <div class="terminal-line">Initializing Firebase SDKs...</div>
-        <div class="terminal-line">Awaiting telemetry from main-relay...</div>
-      </section>
-    </main>
-
-    <div id="load-status">Loading SDK...</div>
-
-    <script>
-      function logToTerminal(msg) {
-        const term = document.getElementById('terminal-output');
-        const line = document.createElement('div');
-        line.className = 'terminal-line';
-        line.textContent = msg;
-        term.appendChild(line);
-        term.scrollTop = term.scrollHeight;
-      }
-
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.getElementById('load-status');
-        const sysState = document.getElementById('sys-state');
-
-        try {
-          let app = firebase.app();
-          let features = ['auth', 'database', 'firestore', 'functions', 'storage']
-            .filter(feature => typeof app[feature] === 'function');
-          
-          loadEl.textContent = `SDK v12.10.0 | Active: ${features.join(', ')}`;
-          sysState.textContent = 'ONLINE';
-          sysState.style.color = 'var(--terminal-text)';
-          
-          logToTerminal("Firebase Handshake: SUCCESS.");
-          logToTerminal("Monitoring active project: studio-7004868057-a1479");
-          
-          // --- Real-time Firestore Listener ---
-          const db = firebase.firestore();
-          const intelFeed = document.getElementById('intel-feed');
-
-          db.collection('intel-feed')
-            .orderBy('timestamp', 'desc')
-            .limit(10)
-            .onSnapshot((snapshot) => {
-              if (snapshot.empty) {
-                logToTerminal("Intel Feed: Awaiting initial data...");
-                return;
-              }
-
-              // Clear the feed for new data
-              intelFeed.innerHTML = '';
-              
-              snapshot.forEach((doc) => {
-                const data = doc.data();
-                const timeStr = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleString() : 'N/A';
-                
-                const item = document.createElement('div');
-                item.className = 'data-item';
-                item.innerHTML = `
-                  <div class="timestamp">${timeStr}</div>
-                  <div><span class="tag">[${data.tag || 'INFO'}]</span> ${data.message}</div>
-                `;
-                intelFeed.appendChild(item);
-              });
-              
-              logToTerminal(`Intel Feed: Received ${snapshot.size} updates.`);
-            }, (error) => {
-              logToTerminal(`FEED ERROR: ${error.message}`);
-              console.error("Firestore Error:", error);
-            });
-
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Connection Error.';
-          sysState.textContent = 'OFFLINE';
-          sysState.style.color = 'red';
-          logToTerminal("CRITICAL ERROR: Failed to initialize Firebase.");
-        }
-      });
-    </script>
-  </body>
+         const container =
+ document.getElementById('data-container');
+         db.collection('market-data').onSnapshot((snap) =>
+ {
+             container.innerHTML = '';
+             snap.forEach(doc => {
+                 const d = doc.data();
+                 container.innerHTML += `
+                     <div class="card glass-panel">
+                         <div
+ class="symbol">${d.symbol}</div>
+                         <div class="val">$${d.price}</div>
+                         <div>${d.delta}</div>
+                     </div>`;
+             });
+         });
+     </script>
+ </body>
+ </html>
