@@ -10,46 +10,54 @@ p-compat.js"></script>
     <script
 src="https://www.gstatic.com/firebasejs/10.8.0/firebase-fi
 restore-compat.js"></script>
-    <!-- TradingView Widget -->
-    <script type="text/javascript"
-src="https://s3.tradingview.com/external-embedding/embed-w
-idget-ticker-tape.js" async>
-    {
-      "symbols": [
-        { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500"
-},
-        { "proName": "FOREXCOM:NSXUSD", "title": "US 100"
-},
-        { "proName": "FX_IDC:EURUSD", "title": "EUR to
-USD" },
-        { "proName": "BITSTAMP:BTCUSD", "title": "Bitcoin"
-},
-        { "proName": "BITSTAMP:ETHUSD", "title":
-"Ethereum" }
-      ],
-      "showSymbolLogo": true,
-      "colorTheme": "dark",
-      "isTransparent": true,
-      "displayMode": "adaptive",
-      "locale": "en"
-    }
-    </script>
+    
     <style>
         body { font-family: 'Courier New', Courier,
 monospace; background: #050505; color: #00ff41; margin: 0;
 padding: 2rem; }
+        .ticker-wrapper { margin-bottom: 2rem; border: 1px
+solid #333; padding: 5px; }
         .grid { display: grid; grid-template-columns:
-repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;
-margin-top: 2rem; }
-        .card { border: 1px solid #333; padding: 1rem;
-border-radius: 4px; background: #111; }
+repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .card { border: 1px solid rgba(0, 255, 65, 0.2);
+padding: 1.5rem; border-radius: 8px; background: rgba(17,
+17, 17, 0.6); backdrop-filter: blur(10px); }
         h1 { color: #fff; border-bottom: 2px solid
-#00ff41; padding-bottom: 0.5rem; }
+#00ff41; padding-bottom: 0.5rem; text-transform:
+uppercase; letter-spacing: 0.2rem; }
         .val { color: #fff; font-weight: bold; }
     </style>
 </head>
 <body>
     <h1>HYA Terminal: Institutional Silo</h1>
+
+    <!-- TradingView Ticker Tape -->
+    <div class="ticker-wrapper">
+        <div class="tradingview-widget-container">
+            <div
+class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript"
+src="https://s3.tradingview.com/external-embedding/embed-w
+idget-ticker-tape.js" async>
+            {
+                "symbols": [
+                    { "proName": "FOREXCOM:SPXUSD",
+"title": "S&P 500" },
+                    { "proName": "FOREXCOM:NSXUSD",
+"title": "US 100" },
+                    { "proName": "BITSTAMP:BTCUSD",
+"title": "Bitcoin" }
+                ],
+                "showSymbolLogo": true,
+                "colorTheme": "dark",
+                "isTransparent": true,
+                "displayMode": "adaptive",
+                "locale": "en"
+            }
+            </script>
+        </div>
+    </div>
+
     <div id="data-container" class="grid"></div>
 
     <script>
