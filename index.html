@@ -80,6 +80,59 @@
             50% { opacity: 0.5; }
         }
         
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 0;
+        }
+        
+        /* === SIDEBAR TABS === */
+        .sidebar-tabs {
+            display: flex;
+            flex-direction: column;
+            width: 50px;
+            background: var(--panel);
+            border-right: 1px solid rgba(0, 255, 65, 0.15);
+            flex-shrink: 0;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 0.75rem 0;
+            border: none;
+            background: transparent;
+            color: var(--dim);
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: uppercase;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            letter-spacing: 0.1rem;
+        }
+        
+        .tab-button:last-child {
+            border-bottom: none;
+        }
+        
+        .tab-button:hover {
+            background: rgba(0, 255, 65, 0.05);
+            color: var(--accent);
+        }
+        
+        .tab-button.active {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--primary);
+            border-right: 2px solid var(--primary);
+        }
+        
+        /* === MAIN CONTENT === */
         .main-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -88,6 +141,19 @@
             padding: 1rem;
             flex: 1;
             overflow: hidden;
+        }
+        
+        .tab-content {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr auto;
+            gap: 1rem;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .tab-content.active {
+            display: grid;
         }
         
         .panel {
@@ -260,6 +326,8 @@
             body { padding: 0; }
             header { padding: 0.75rem; }
             h1 { font-size: 1rem; }
+            .sidebar-tabs { width: 40px; }
+            .tab-button { font-size: 9px; padding: 0.5rem 0; }
             .main-container { grid-template-columns: 1fr; padding: 0.75rem; gap: 0.75rem; }
             .macro-panel { grid-template-columns: repeat(2, 1fr); }
         }
@@ -274,45 +342,96 @@
         </div>
     </header>
     
-    <div class="main-container">
-        <!-- Left Panel: Ticker Grid -->
-        <div class="panel">
-            <div class="panel-title">Market Tickers</div>
-            <div class="ticker-grid scrollbar-hidden" id="ticker-grid"></div>
+    <div class="content-wrapper">
+        <!-- Sidebar Tabs -->
+        <div class="sidebar-tabs">
+            <button class="tab-button active" data-tab="dashboard">DASH</button>
+            <button class="tab-button" data-tab="tickers">TICK</button>
+            <button class="tab-button" data-tab="analysis">ANALYSIS</button>
+            <button class="tab-button" data-tab="intel">INTEL</button>
+            <button class="tab-button" data-tab="alerts">ALERTS</button>
         </div>
         
-        <!-- Right Panel: Chart -->
-        <div class="chart-container">
-            <div id="chart"></div>
-        </div>
-        
-        <!-- Bottom Macro Panel -->
-        <div class="panel" style="grid-column: span 2;">
-            <div class="panel-title">Macro Corridor Status</div>
-            <div class="macro-panel" id="macro-panel">
-                <div class="macro-stat">
-                    <div class="macro-label">10Y-2Y Spread</div>
-                    <div class="macro-value" id="spread-val">-0.15%</div>
+        <!-- Tab Contents -->
+        <div class="main-container">
+            <!-- Dashboard Tab (Default) -->
+            <div id="dashboard" class="tab-content active">
+                <!-- Left: Ticker Grid -->
+                <div class="panel">
+                    <div class="panel-title">Market Tickers</div>
+                    <div class="ticker-grid scrollbar-hidden" id="ticker-grid"></div>
                 </div>
-                <div class="macro-stat">
-                    <div class="macro-label">Curve Status</div>
-                    <div class="macro-value" id="curve-status">Inverted</div>
+                
+                <!-- Right: Chart -->
+                <div class="chart-container">
+                    <div id="chart"></div>
                 </div>
-                <div class="macro-stat">
-                    <div class="macro-label">VIX Index</div>
-                    <div class="macro-value" id="vix-val">14.2</div>
-                </div>
-                <div class="macro-stat">
-                    <div class="macro-label">Market Mode</div>
-                    <div class="macro-value" id="market-mode">Risk-On</div>
+                
+                <!-- Bottom: Macro Panel (Full Width) -->
+                <div class="panel" style="grid-column: span 2;">
+                    <div class="panel-title">Macro Corridor Status</div>
+                    <div class="macro-panel" id="macro-panel">
+                        <div class="macro-stat">
+                            <div class="macro-label">10Y-2Y Spread</div>
+                            <div class="macro-value" id="spread-val">-0.15%</div>
+                        </div>
+                        <div class="macro-stat">
+                            <div class="macro-label">Curve Status</div>
+                            <div class="macro-value" id="curve-status">Inverted</div>
+                        </div>
+                        <div class="macro-stat">
+                            <div class="macro-label">VIX Index</div>
+                            <div class="macro-value" id="vix-val">14.2</div>
+                        </div>
+                        <div class="macro-stat">
+                            <div class="macro-label">Market Mode</div>
+                            <div class="macro-value" id="market-mode">Risk-On</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Bottom Intel Feed -->
-        <div class="panel" style="grid-column: span 2; max-height: 150px;">
-            <div class="panel-title">Live Intelligence Feed</div>
-            <div class="intel-feed scrollbar-hidden" id="intel-feed"></div>
+            
+            <!-- Tickers Tab -->
+            <div id="tickers" class="tab-content">
+                <div class="panel" style="grid-column: span 2;">
+                    <div class="panel-title">Detailed Ticker View</div>
+                    <div class="ticker-grid scrollbar-hidden" id="ticker-grid-expanded"></div>
+                </div>
+            </div>
+            
+            <!-- Analysis Tab -->
+            <div id="analysis" class="tab-content">
+                <div class="chart-container" style="grid-column: span 2;">
+                    <div id="chart-analysis"></div>
+                </div>
+            </div>
+            
+            <!-- Intel Tab -->
+            <div id="intel" class="tab-content">
+                <div class="panel" style="grid-column: span 2;">
+                    <div class="panel-title">Live Intelligence Feed</div>
+                    <div class="intel-feed scrollbar-hidden" id="intel-feed"></div>
+                </div>
+            </div>
+            
+            <!-- Alerts Tab -->
+            <div id="alerts" class="tab-content">
+                <div class="panel" style="grid-column: span 2;">
+                    <div class="panel-title">System Alerts & Notifications</div>
+                    <div class="intel-feed scrollbar-hidden" id="alerts-feed">
+                        <div class="intel-item">
+                            <div class="intel-time">14:52</div>
+                            <div class="intel-tag">[ALERT]</div>
+                            <div class="intel-text">SMH breach above $250. Gap-fill complete.</div>
+                        </div>
+                        <div class="intel-item">
+                            <div class="intel-time">14:35</div>
+                            <div class="intel-tag">[WARN]</div>
+                            <div class="intel-text">VIX spike detected. Volatility regime shift imminent.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -334,9 +453,31 @@
             { time: '14:18', tag: 'MACRO', msg: 'Fed signals hawkish hold. 10Y yield +8bps to 4.15%. Curve flattens.' }
         ];
 
-        function renderTickers(tickers) {
-            const grid = document.getElementById('ticker-grid');
-            grid.innerHTML = tickers.map(t => `
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and contents
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+                
+                // Resize chart if needed
+                if (tabName === 'analysis' && chart) {
+                    setTimeout(() => {
+                        chart.applyOptions({ width: document.getElementById('chart-analysis').clientWidth, height: document.getElementById('chart-analysis').clientHeight });
+                    }, 100);
+                }
+            });
+        });
+
+        function renderTickers(tickers, containerId = 'ticker-grid') {
+            const container = document.getElementById(containerId);
+            container.innerHTML = tickers.map(t => `
                 <div class="ticker-card">
                     <div class="ticker-symbol">${t.symbol}</div>
                     <div class="ticker-name">${t.name}</div>
@@ -346,9 +487,9 @@
             `).join('');
         }
         
-        function renderIntel(intel) {
-            const feed = document.getElementById('intel-feed');
-            feed.innerHTML = intel.map(item => `
+        function renderIntel(intel, containerId = 'intel-feed') {
+            const container = document.getElementById(containerId);
+            container.innerHTML = intel.map(item => `
                 <div class="intel-item">
                     <div class="intel-time">${item.time}</div>
                     <div class="intel-tag">[${item.tag}]</div>
@@ -357,44 +498,52 @@
             `).join('');
         }
         
-        // Initialize chart
+        // Initialize dashboard chart
         const chartContainer = document.getElementById('chart');
-        const chart = LightweightCharts.createChart(chartContainer, {
-            width: chartContainer.clientWidth,
-            height: chartContainer.clientHeight,
-            layout: {
-                background: { color: '#0a0a0a' },
-                textColor: '#00ff41',
-            },
-            timeScale: { timeVisible: true, secondsVisible: false },
-            grid: { horzLines: { color: '#1a1a1a' }, vertLines: { color: '#1a1a1a' } },
-        });
+        let chart = null;
         
-        const candlestickSeries = chart.addCandlestickSeries({
-            upColor: '#4ade80',
-            downColor: '#ff4545',
-            borderUpColor: '#4ade80',
-            borderDownColor: '#ff4545',
-            wickUpColor: '#4ade80',
-            wickDownColor: '#ff4545',
-        });
+        function initChart(containerId) {
+            const container = document.getElementById(containerId);
+            chart = LightweightCharts.createChart(container, {
+                width: container.clientWidth,
+                height: container.clientHeight,
+                layout: {
+                    background: { color: '#0a0a0a' },
+                    textColor: '#00ff41',
+                },
+                timeScale: { timeVisible: true, secondsVisible: false },
+                grid: { horzLines: { color: '#1a1a1a' }, vertLines: { color: '#1a1a1a' } },
+            });
+            
+            const candlestickSeries = chart.addCandlestickSeries({
+                upColor: '#4ade80',
+                downColor: '#ff4545',
+                borderUpColor: '#4ade80',
+                borderDownColor: '#ff4545',
+                wickUpColor: '#4ade80',
+                wickDownColor: '#ff4545',
+            });
+            
+            candlestickSeries.setData([
+                { time: '2026-04-21', open: 240, high: 248, low: 238, close: 245 },
+                { time: '2026-04-22', open: 245, high: 252, low: 243, close: 250 },
+                { time: '2026-04-23', open: 250, high: 255, low: 248, close: 252 },
+                { time: '2026-04-24', open: 252, high: 258, low: 250, close: 256 },
+                { time: '2026-04-25', open: 256, high: 260, low: 254, close: 258 },
+                { time: '2026-04-26', open: 258, high: 262, low: 256, close: 260 },
+                { time: '2026-04-27', open: 260, high: 265, low: 259, close: 263 },
+            ]);
+            
+            chart.timeScale().fitContent();
+            return chart;
+        }
         
-        // Dummy chart data
-        candlestickSeries.setData([
-            { time: '2026-04-21', open: 240, high: 248, low: 238, close: 245 },
-            { time: '2026-04-22', open: 245, high: 252, low: 243, close: 250 },
-            { time: '2026-04-23', open: 250, high: 255, low: 248, close: 252 },
-            { time: '2026-04-24', open: 252, high: 258, low: 250, close: 256 },
-            { time: '2026-04-25', open: 256, high: 260, low: 254, close: 258 },
-            { time: '2026-04-26', open: 258, high: 262, low: 256, close: 260 },
-            { time: '2026-04-27', open: 260, high: 265, low: 259, close: 263 },
-        ]);
-        
-        chart.timeScale().fitContent();
+        initChart('chart');
         
         // Initial render
-        renderTickers(defaultTickers);
-        renderIntel(defaultIntel);
+        renderTickers(defaultTickers, 'ticker-grid');
+        renderTickers(defaultTickers, 'ticker-grid-expanded');
+        renderIntel(defaultIntel, 'intel-feed');
 
         document.addEventListener('DOMContentLoaded', function() {
             const loadEl = document.getElementById('load-status');
@@ -422,7 +571,8 @@
                                 price: doc.data().price,
                                 delta: doc.data().delta
                             }));
-                            renderTickers(tickers);
+                            renderTickers(tickers, 'ticker-grid');
+                            renderTickers(tickers, 'ticker-grid-expanded');
                         }
                     });
                 
@@ -437,7 +587,7 @@
                                 tag: doc.data().tag || 'INFO',
                                 msg: doc.data().message
                             }));
-                            renderIntel(intel);
+                            renderIntel(intel, 'intel-feed');
                         }
                     });
 
@@ -451,7 +601,9 @@
         
         // Handle window resize
         window.addEventListener('resize', () => {
-            chart.applyOptions({ width: chartContainer.clientWidth, height: chartContainer.clientHeight });
+            if (chart) {
+                chart.applyOptions({ width: chartContainer.clientWidth, height: chartContainer.clientHeight });
+            }
         });
     </script>
 </body>
