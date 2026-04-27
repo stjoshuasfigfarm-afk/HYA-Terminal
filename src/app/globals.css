@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,9 +10,9 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    --primary: 174 62% 47%; /* Teal #26A69A */
+    --primary: 174 62% 47%;
     --primary-foreground: 222 47% 11%;
-    --secondary: 88 100% 66%; /* Lime #B2FF59 */
+    --secondary: 88 100% 66%;
     --secondary-foreground: 222 47% 11%;
     --muted: 217 32% 17%;
     --muted-foreground: 215 20% 65%;
@@ -39,7 +38,7 @@
   }
   body {
     @apply bg-background text-foreground font-mono antialiased;
-    background-image: 
+    background-image:
       radial-gradient(at 0% 0%, rgba(38, 166, 154, 0.15) 0px, transparent 50%),
       radial-gradient(at 100% 100%, rgba(178, 255, 89, 0.1) 0px, transparent 50%);
     background-attachment: fixed;
@@ -70,21 +69,20 @@
 }
 
 .glass-panel {
-  @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl;
+  @apply bg-black/40 backdrop-blur-xl shadow-2xl;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .silo-active {
   box-shadow: 0 0 15px rgba(38, 166, 154, 0.3);
-  @apply border-primary/50;
+  border-color: hsl(var(--primary) / 0.5);
 }
 
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
+.animate-spin-slow { animation: spin-slow 8s linear infinite; }
 
 @keyframes flow-horizontal {
   0% { stroke-dashoffset: 100; }

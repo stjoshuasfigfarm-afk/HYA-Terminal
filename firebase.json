@@ -1,27 +1,4 @@
 {
-  "firestore": {
-    "database": "(default)",
-    "location": "us-central1",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "functions": [
-    {
-      "codebase": "main-relay",
-      "ignore": [
-        "venv",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ],
-      "source": "functions",
-      "runtime": "python313"
-    }
-  ],
-  "database": {
-    "rules": "database.rules.json"
-  },
   "hosting": {
     "public": "public",
     "ignore": [
@@ -35,13 +12,5 @@
         "destination": "/index.html"
       }
     ]
-  },
-  "storage": {
-    "rules": "storage.rules"
-  },
-  "auth": {
-    "providers": {
-      "emailPassword": true
-    }
   }
 }
