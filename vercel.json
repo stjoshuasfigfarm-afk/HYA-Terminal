@@ -2,12 +2,10 @@
   "version": 2,
   "public": true,
   "name": "hya-terminal",
+  "framework": null,
+  "buildCommand": "echo 'Skipping build...'",
+  "outputDirectory": ".",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
-}
-{
-  "buildCommand": "echo 'Skipping build...'",
-  "outputDirectory": "public",
-  "framework": null
 }
