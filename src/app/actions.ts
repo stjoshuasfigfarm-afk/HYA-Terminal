@@ -5,8 +5,7 @@ import { ApiService } from '@/lib/services/api-service';
 import type { TickerData, TerminalPhaseResponse, MacroData, SupplyChainNode } from '@/lib/types';
 import { initialTickerData } from '@/lib/mock-data';
 import { cache } from 'react';
-import { initializeFirebase } from '@/firebase';
-import { doc, getDoc, setDoc, serverTimestamp, arrayUnion } from 'firebase/firestore';
+import { getCachedTickerData, setCachedTickerData } from '@/firebase/firestore/cache';
 import { generateMacroAudioReport, MacroReportInput } from '@/ai/flows/macro-audio-report-flow';
 import { getTickerInsights } from '@/ai/flows/ticker-insights-flow';
 
@@ -71,6 +70,16 @@ export async function getFullTickerDataAction(symbol: string): Promise<TerminalP
   const symbolUpper = symbol.toUpperCase();
   
   try {
+    const cachedData = await getCachedTickerData(symbolUpper);
+    if (cachedData) {
+      return {
+        data: safeResponse(cachedData),
+        status: "SILO_HIT",
+        message: "⚡ [SILO HIT]: Cached data retrieved.",
+        logs: [{ type: "INFO", message: `FS_READ: ${symbolUpper} data retrieved from silo.` }]
+      };
+    }
+
     const compliance = await validateCompliance();
     if (!compliance.isValid) {
       return {
@@ -88,7 +97,17 @@ export async function getFullTickerDataAction(symbol: string): Promise<TerminalP
       apiService.fetchAlphaVantageBalanceSheet(symbolUpper).catch(() => null),
     ]);
 
-    const mockBase = initialTickerData[symbolUpper] || { symbol: symbolUpper, suppliers: [], customers: [], midstream: [] } as TickerData;
+    const mockBase = (initialTickerData[symbolUpper] || { 
+        symbol: symbolUpper, 
+        name: symbolUpper,
+        sector: 'Unknown',
+        price: 0,
+        priceChange: 0,
+        marketCap: 0,
+        suppliers: [], 
+        customers: [], 
+        midstream: [] 
+    }) as TickerData;
 
     const harvestedData: TickerData = {
       ...mockBase,
@@ -104,12 +123,14 @@ export async function getFullTickerDataAction(symbol: string): Promise<TerminalP
     };
 
     harvestedData.logisticsRiskScore = await calculateLogisticsRiskScoreAction(harvestedData);
+    
+    await setCachedTickerData(symbolUpper, harvestedData);
 
     return {
       data: safeResponse(harvestedData),
       status: "HARVEST_COMPLETE",
       message: "🟢 [HARVEST COMPLETE]: Logistics corridor synchronized.",
-      logs: [{ type: "FS_SYNC", message: `HARVEST_COMPLETE: ${symbolUpper} silo rehydrated.` }]
+      logs: [{ type: "FS_SYNC", message: `FS_SYNC: ${symbolUpper} silo rehydrated.` }]
     };
 
   } catch (error: any) {
