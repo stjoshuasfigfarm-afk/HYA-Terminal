@@ -1,1 +1,56 @@
-Executive SummaryThe HYA Analysis Terminal is a high-performance, low-latency financial intelligence dashboard built for institutional-grade market synthesis. Operating on a "High-Yield Silo" architecture, the terminal bypasses traditional heavy frameworks in favor of a lean, static-core engine that interfaces directly with global financial telemetry and proprietary data streams.Developed as the primary interface for High Yield Associates, this terminal shifts the focus from manual data management to automated system orchestration.Core ArchitectureThe Intelligence Layer: Real-time data rehydration via Firebase Firestore, providing instantaneous updates on market pivots and deal-flow.Market Telemetry: Integrated TradingView institutional tape providing live price action across S&P 500, Tech sectors, and Digital Assets.The Silo Pattern: A zero-dependency static stack optimized for maximum uptime and minimal client-side overhead.System Diagnostics: Persistent terminal logging for real-time monitoring of SDK handshakes and telemetry relays.Technical SpecificationsComponentProtocolFrontendStatic HTML5 / CSS3 (Consolas Engine)BackendFirebase v12.10.0 (Compat Layer)Data SyncFirestore Real-time SnapshotsDeploymentVercel Edge NetworkTypographyMonospaced Institutional GridOperational FocusSystem Orchestration: Moving beyond human-scale management into algorithmic oversight.Predictive Compliance: Monitoring regulatory shifts and sovereign AI infrastructure compatibility.Global Market Flow: Tracking the convergence of Quantum-AI and its impact on labor demand and capital rotation.Developer NotesThis repository is maintained as a Zero-Footprint Stack. To preserve system integrity and performance on low-resource hardware, the environment is kept strictly free of npm dependencies and heavy node-based build processes.
+# HYA Terminal: Institutional Silo
+
+The **HYA Terminal** is a high-performance,
+static-first financial dashboard engineered for
+real-time portfolio triage and macro-market
+oversight. Built to bypass build-time dependencies,
+this architecture delivers ultra-fast, data-forward
+performance with 100% reliability.
+
+## 🏗️ Core Architecture
+- **Front-End:** Static-first, framework-free
+infrastructure served via GitHub Pages.
+- **Data Engine:** Real-time synchronization
+powered by **Firebase Firestore**.
+- **Institutional Aesthetic:** Cyber-Minimalist
+design optimized for trading-floor efficiency.
+
+## 📊 Terminal Metrics & Institutional Coverage
+The terminal tracks high-alpha sectors and global
+macro indicators in real-time:
+- **AI Infrastructure (SMH)**
+- **Information Technology (XLK)**
+- **Financial Services (XLF)**
+- **Semiconductors (SOXX)**
+
+## 📈 Macro-Corridor Monitoring
+- **10Y-2Y Yield Spread:** Institutional benchmark
+for recession probability.
+- **Systemic Volatility (VIX):** Real-time
+monitoring of systemic risk.
+- **Sector Velocity:** Momentum tracking to
+identify leadership quadrants.
+
+## 🚀 Deployment Strategy: The "Boxed Silo"
+This project utilizes a **zero-build** deployment
+strategy:
+1. **Develop/Edit:** Direct manipulation of
+`public/index.html` via GitHub browser editor.
+2. **Data Sync:** Live updates injected via
+Firebase Firestore Console.
+3. **Deploy:** Instant serving via GitHub
+Pages/Vercel (using `vercel.json` bypass).
+4. **Resilience:** Static hosting eliminates `npm`,
+`Webpack`, and `PostCSS` build failures.
+
+## 🛠️ Configuration & Setup
+- **Firebase:** Ensure your `firebaseConfig` object
+in `public/index.html` is updated with your
+specific Project ID and API Key.
+- **Hosting:** Set your GitHub Pages branch to
+`main` with the folder `/ (root)` for instant
+deployment.
+
+---
+*Status: Institutional Silo Online. Monitoring U.S.
+National Demand Index.*
