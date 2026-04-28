@@ -1,149 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HYA Terminal | Institutional Silo</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <style>
-        :root { 
-            --bg: #050505; 
-            --primary: #00ff41; 
-            --accent: #ffa100;
-            --dim: #003b10;
-        }
-        
-        body { 
-            font-family: 'Consolas', 'Courier New', monospace;
-            background: var(--bg); 
-            color: #fff; 
-            margin: 0; 
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
 
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 0.5rem; 
-            margin-bottom: 1rem; 
-            text-shadow: 0 0 5px var(--primary);
-        }
+    /**
+     * YIELD INSIGHTS TERMINAL - SECURITY RULES
+     * CORE PHILOSOPHY: DBAC Model with Public Demo Mode.
+     */
 
-        /* Institutional Grid Enhancement */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 1rem;
-            flex-grow: 1;
-            overflow-y: auto;
-            padding-bottom: 2rem;
-        }
+    function isSignedIn() {
+      return request.auth != null;
+    }
 
-        .card { 
-            border: 1px solid var(--dim); 
-            padding: 1.2rem; 
-            border-radius: 2px; 
-            background: #0a0a0a; 
-            transition: border 0.3s ease;
-        }
-        
-        .card:hover { border-color: var(--primary); }
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
 
-        .val { color: var(--primary); font-weight: bold; }
-        .tag { color: var(--accent); font-size: 0.8rem; text-transform: uppercase; }
+    function isAdminAndExists() {
+      return isAdmin() && resource != null;
+    }
 
-        /* Added Terminal Log for Debugging */
-        .system-log {
-            background: #000;
-            border-top: 1px solid var(--dim);
-            height: 120px;
-            padding: 10px;
-            font-size: 0.75rem;
-            color: var(--primary);
-            overflow-y: auto;
-        }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <h1 style="font-size: 1.2rem; margin:0;">HYA_TERMINAL // SILO_V1.1</h1>
-        <div id="clock">--:--:--</div>
-    </header>
+    function isUnchanged(field) {
+      return request.resource.data[field] == resource.data[field];
+    }
 
-    <div style="height: 60px; border-bottom: 1px solid var(--dim); margin-bottom: 1rem;">
-        <div class="tradingview-widget-container">
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            { 
-                "symbols": [{"proName": "FOREXCOM:SPXUSD"}, {"proName": "FOREXCOM:NSXUSD"}, {"proName": "BITSTAMP:BTCUSD"}], 
-                "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive" 
-            }
-            </script>
-        </div>
-    </div>
+    // --- Admin Management ---
+    match /roles_admin/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.id == userId;
+      allow update: if isAdminAndExists() && isUnchanged('id');
+      allow delete: if isAdminAndExists();
+    }
 
-    <div id="data-container" class="grid">
-        <p style="color: var(--dim);">Awaiting Handshake...</p>
-    </div>
+    // --- Institutional Silo: Market Data ---
+    // Added 'market-data' (hyphen) to match your HTML code precisely
+    match /market-data/{symbol} {
+      allow read, write: if true; 
+    }
+    
+    match /market_data/{symbol} {
+      allow read, write: if true; 
+    }
 
-    <div class="system-log" id="sys-log">
-        <div>> System Boot Initiated...</div>
-    </div>
+    // --- Intel Feed: News and Intelligence ---
+    // Added to support the news component in your Terminal
+    match /intel-feed/{postId} {
+      allow read: if true;
+      allow write: if isAdmin() || true; // Set to true for Demo rehydration
+    }
 
-    <script>
-        const log = (msg) => {
-            const l = document.getElementById('sys-log');
-            l.innerHTML += `<div>> ${msg}</div>`;
-            l.scrollTop = l.scrollHeight;
-        };
+    // --- Supply Chain & Ticker Topology ---
+    match /tickers/{tickerId} {
+      allow get, list: if true;
+      allow create, update: if true;
+      allow delete: if isAdminAndExists();
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyBuUOSPJOZyhv_lce6tHlU6ke5vcbGR12w", 
-            authDomain: "studio-7004868057-a1479.firebaseapp.com", 
-            projectId: "studio-7004868057-a1479", 
-            storageBucket: "studio-7004868057-a1479.firebasestorage.app",
-            messagingSenderId: "582416227020", 
-            appId: "1:582416227020:web:21d3df727835ac76ea0069" 
-        };
+      match /supplyChainNodes/{nodeId} {
+        allow read, write: if true;
+        allow delete: if isAdminAndExists();
+      }
 
-        try {
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.firestore();
-            log("Firebase Connection: ACTIVE");
+      match /supplyChainLinks/{linkId} {
+        allow read, write: if true;
+        allow delete: if isAdminAndExists();
+      }
+    }
 
-            setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString(), 1000);
+    // --- System Logs & Diagnostics ---
+    match /logs/{logId} {
+      allow get, list: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
 
-            db.collection('market-data').onSnapshot((snap) => {
-                const container = document.getElementById('data-container');
-                container.innerHTML = '';
-                
-                if (snap.empty) { 
-                    log("Warning: 'market-data' collection is empty.");
-                    container.innerHTML = '<p style="color:var(--accent);">SILO EMPTY: Add docs to market-data collection.</p>'; 
-                }
-
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    log(`Inbound Telemetry: ${d.symbol || 'Unknown'}`);
-                    container.innerHTML += `
-                        <div class="card">
-                            <span class="tag">Sector: ${d.sector || 'Market'}</span>
-                            <h3 style="margin: 0.5rem 0;">${d.symbol || 'SYMBOL'}</h3>
-                            <p>Price: <span class="val">$${d.price || '0.00'}</span></p>
-                            <p>24h Delta: <span class="val">${d.delta || '0%'}</span></p>
-                        </div>`;
-                });
-            }, (error) => {
-                log(`CRITICAL ERROR: ${error.message}`);
-            });
-        } catch (e) {
-            log(`Initialization Failed: ${e.message}`);
-        }
-    </script>
-</body>
-</html>
+    // --- Global App Settings ---
+    match /appSettings/{settingId} {
+      allow read, write: if true;
+    }
+  }
+}
