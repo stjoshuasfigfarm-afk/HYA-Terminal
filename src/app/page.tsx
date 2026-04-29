@@ -1,4 +1,5 @@
-'use client';
+"use client";
+
 import React, { useState, useEffect, useCallback, useTransition, lazy, useRef, Suspense } from "react";
 import { initialTickerData } from "@/lib/mock-data";
 import type { TickerData, LogEntry } from "@/lib/types";
@@ -131,7 +132,7 @@ export default function Home() {
                 />
             </div>
 
-            {/* MAIN TOPOLOGY HERO FOCUS */}
+            {/* MAIN TOPOLOGY HERO FOCUS - STRUCTURAL HEADER */}
             <div className="w-full min-h-[800px] glass-panel overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-2xl shrink-0">
                 <div className="p-3 border-b border-white/10 bg-white/[0.02] flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase text-primary tracking-widest flex items-center gap-2">
